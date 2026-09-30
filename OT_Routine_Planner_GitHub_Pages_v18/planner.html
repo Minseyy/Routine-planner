@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#302865">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mission Planner">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>My After-School Mission</title>
+<style>
+:root{
+  --ink:#302865; --muted:#726d89; --lav:#eee9ff; --pink:#ffe9ef; --mint:#e8f8ef; --blue:#e8f3ff;
+  --yellow:#fff5da; --line:#ddd8ec; --shadow:0 7px 20px rgba(55,43,92,.09);
+  --done:#edf8ef; --doing:#fff7d5; --soft:#faf8ff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:ui-rounded,"SF Pro Rounded","Segoe UI",Arial,sans-serif;color:var(--ink);background:linear-gradient(180deg,#faf8ff,#fff 42%)}
+.wrap{max-width:1320px;margin:auto;padding:20px}
+header{background:linear-gradient(135deg,#f0eaff,#ffeef4);border:1px solid #e5dff5;border-radius:24px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:16px}
+h1{margin:0;font-size:clamp(30px,4vw,44px)}
+.sub{margin:8px 0 0;color:var(--muted);line-height:1.4}
+.toolbar,.templatebar,.sound-actions,.save-actions,.stuck-actions,.top-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toolbar{margin-top:15px}
+button{border:0;border-radius:12px;padding:10px 13px;font-weight:800;color:var(--ink);background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer}
+button:hover{transform:translateY(-1px)}
+.primary{background:var(--ink);color:#fff}.danger{background:#fff0f2;color:#923c4b}.softbtn{background:#f4f1fb}
+.layout{display:grid;grid-template-columns:.92fr 1.18fr;gap:16px}
+@media(max-width:980px){.layout{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid #ece9f4;border-radius:22px;padding:16px;box-shadow:var(--shadow)}
+.panel h2{margin:0 0 5px;font-size:23px}.hint,.small-note{font-size:13px;color:var(--muted);line-height:1.38}
+.section{margin-top:15px;padding-top:14px;border-top:1px solid #efecf6}
+.bank{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+@media(max-width:560px){.bank{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.activity{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid var(--line);border-radius:15px;min-height:64px;user-select:none;cursor:grab}
+.activity .icon{font-size:26px}.activity .label{font-size:14px;font-weight:850;line-height:1.15}
+.tone1{background:var(--pink)}.tone2{background:var(--mint)}.tone3{background:var(--blue)}.tone4{background:var(--yellow)}.tone5{background:var(--lav)}
+input[type=text],input[type=time],input[type=number],input[type=range],select,textarea{
+  border:1px solid #dcd7eb;border-radius:10px;padding:8px 9px;color:var(--ink);font:inherit;background:#fff
+}
+input[type=text],textarea{width:100%}
+textarea{resize:vertical;min-height:58px}
+.templatebar{margin-top:12px;padding:10px 12px;background:#fcfbff;border:1px solid #e9e5f4;border-radius:16px}
+.templatebar select{min-width:180px}
+.sequence{min-height:230px;border:2px dashed #cbc5e7;border-radius:18px;padding:9px;background:#fcfbff}
+.sequence.empty:before{content:"Drag activities here to build your routine";display:block;text-align:center;color:#9993ad;padding:78px 10px;font-weight:750}
+.seq-item{border:1px solid #dfdaee;border-radius:17px;background:#fff;margin:9px 0;padding:10px;box-shadow:0 2px 8px rgba(45,33,82,.05)}
+.seq-item.doing{background:var(--doing);border-color:#ead67d}.seq-item.done{background:var(--done);opacity:.86}
+.seq-top{display:grid;grid-template-columns:40px 1fr auto;gap:9px;align-items:center}
+.num{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font-weight:900}
+.seq-main{display:flex;gap:9px;align-items:center;min-width:0}.seq-main .icon{font-size:25px}.seq-main .label{font-weight:900;line-height:1.15}
+.controls{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.mini{padding:7px 9px;box-shadow:none;border:1px solid #e1dced;background:#fff}
+.meta{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:9px;padding-top:9px;border-top:1px solid #eeeaf5}
+@media(max-width:760px){.meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.field label{display:block;font-size:10.5px;font-weight:800;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.25px}
+.field input,.field select{width:100%}
+.status-btns{display:flex;gap:5px;align-items:end}.status-btns button{padding:8px 9px;box-shadow:none;border:1px solid #e1dced;flex:1}
+.dashboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:14px}
+@media(max-width:620px){.dashboard{grid-template-columns:1fr}}
+.status{border:1px solid #e3def1;border-radius:15px;padding:11px;background:#faf8ff}
+.status small{display:block;color:var(--muted);font-weight:800;margin-bottom:3px}.status strong{font-size:17px}
+.progress-wrap,.toolkit,.alarm-panel,.sound-panel,.save-state,.reward-panel,.stuck-panel{margin-top:12px;border:1px solid #e3def1;border-radius:16px;padding:12px}
+.progress-wrap,.toolkit{background:#fcfbff}
+.alarm-panel{background:#fffaf0}.sound-panel{background:#f8fbff}.save-state{background:#f8fff9}.reward-panel{background:#fff8fb}.stuck-panel{background:#f7fbff}
+.progress-line{height:12px;background:#ece8f6;border-radius:999px;overflow:hidden;margin-top:7px}.progress-fill{height:100%;background:#7766bd;width:0%;transition:.2s}
+.tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+@media(max-width:560px){.tools-grid{grid-template-columns:1fr}}
+.tool-card{border:1px solid var(--line);border-radius:14px;padding:10px;background:#faf9ff;cursor:pointer}
+.tool-card.selected{border:2px solid #7666be;background:#f2efff}
+.tool-title{display:flex;gap:8px;align-items:center;font-weight:850}.tool-desc{font-size:12px;color:var(--muted);line-height:1.3;margin-top:3px}
+.selected-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:8px}
+@media(max-width:560px){.selected-tools{grid-template-columns:1fr}}
+.selected-tool{border:1px solid #e1dced;background:#fff;border-radius:12px;padding:9px;display:flex;gap:8px}.selected-tool strong{font-size:13px}.selected-tool small{display:block;color:var(--muted);font-size:11.5px;line-height:1.25;margin-top:2px}
+.sound-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:9px}
+@media(max-width:560px){.sound-grid{grid-template-columns:1fr}}
+.sound-row label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px;text-transform:uppercase}
+.file-input{display:none}
+.stuck-box{margin-top:10px;border:1px dashed #c8d4ef;border-radius:14px;padding:10px;background:#ffffff}
+.notice{padding:10px 12px;border-radius:12px;background:#f5f2ff;color:#554b86;font-size:12.5px;margin-top:8px;line-height:1.35}
+.footer{font-size:12.5px;color:#7b7591;text-align:center;margin-top:12px}
+@media print{
+  body{background:#fff}.wrap{max-width:none;padding:0}
+  .toolbar,.bank,.section .tools-grid,.sound-panel,.save-state,.footer,.templatebar button,.top-tools,.stuck-actions{display:none!important}
+  .layout{grid-template-columns:1fr}.layout>.panel:first-child{display:none}.panel{box-shadow:none;border:0}.seq-item{break-inside:avoid}
+}
+
+.motivation-bank{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
+@media(max-width:560px){.motivation-bank{grid-template-columns:1fr}}
+.motivation-card{border:1px solid #ead6e2;border-radius:14px;padding:10px;background:#fff;cursor:pointer}
+.motivation-card.selected{border:2px solid #bb6f99;background:#fff0f7}
+.motivation-title{font-weight:900;display:flex;align-items:center;gap:7px}
+.motivation-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.motivation-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.timer-display{font-size:34px;font-weight:900;letter-spacing:1px;text-align:center;padding:12px;border-radius:16px;background:#fff;border:1px solid #eadfe8;margin-top:10px}
+.unlock-box{margin-top:10px;padding:10px;border:1px dashed #d7b7c9;border-radius:14px;background:#fffafd}
+.unlock-list{display:grid;gap:6px;margin-top:8px}
+.unlock-item{display:flex;gap:8px;align-items:center;font-size:13px}
+
+.task-breakdown-controls{
+  display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:9px
+}
+@media(max-width:650px){.task-breakdown-controls{grid-template-columns:1fr}}
+.task-breakdown-controls select{width:100%}
+.breakdown-steps{display:grid;gap:7px;margin-top:10px}
+.breakdown-step{
+  display:flex;gap:9px;align-items:flex-start;padding:9px 10px;
+  border:1px solid #dfe6f3;border-radius:12px;background:#fff
+}
+.breakdown-step.done{opacity:.58;text-decoration:line-through;background:#f3f7f3}
+.breakdown-step input{margin-top:3px;transform:scale(1.15)}
+.action-now{
+  margin-top:10px;padding:15px;border-radius:16px;background:#eef6ff;
+  border:2px solid #a9c9ef;text-align:center
+}
+.action-now small{display:block;color:var(--muted);font-weight:800;margin-bottom:5px}
+.action-now strong{font-size:22px;line-height:1.25}
+.breakdown-toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.copy-feedback{font-size:12px;color:var(--muted);margin-top:5px}
+
+.custom-activity{position:relative}
+.custom-remove{
+  position:absolute;right:6px;top:6px;width:27px;height:27px;min-height:0;padding:0;
+  border-radius:999px;border:1px solid #e2dceb;background:#fff;color:#8d5564;box-shadow:none
+}
+.task-timer-box{
+  margin-top:9px;padding:9px 11px;border-radius:14px;background:#f4f1ff;border:1px solid #ded7ef;
+  display:flex;align-items:center;justify-content:space-between;gap:10px
+}
+.task-timer-box.running{background:#fff7d8;border-color:#ead677}
+.task-timer-box.finished{background:#eef9ef;border-color:#b9dfbd}
+.task-timer-label{font-size:12px;color:var(--muted);font-weight:800}
+.task-timer-value{font-size:25px;font-weight:950;letter-spacing:.5px}
+.timer-controls{display:flex;gap:5px;flex-wrap:wrap}
+.timer-controls button{min-width:42px}
+.ai-breakdown-status{
+  margin-top:8px;padding:8px 10px;border-radius:11px;background:#f4f7ff;border:1px solid #dde5f5;
+  font-size:12px;color:var(--muted);line-height:1.35
+}
+.ai-loading{font-weight:850;color:#574d89}
+@media(max-width:650px){
+  .task-timer-box{align-items:flex-start;flex-direction:column}
+  .timer-controls{width:100%}
+  .timer-controls button{flex:1;min-height:44px}
+}
+
+
+
+/* Tool cards expand independently without stretching the neighbouring card */
+.tools-grid{
+  align-items:start !important;
+}
+.tool-card{
+  align-self:start;
+  height:auto !important;
+  cursor:pointer;
+  transition:box-shadow .15s ease, transform .12s ease, border-color .15s ease;
+}
+.tool-card:active{transform:scale(.99)}
+.tool-card .tool-title{
+  display:flex;align-items:center;justify-content:space-between;gap:10px
+}
+.tool-title-main{
+  display:flex;align-items:center;gap:9px;min-width:0
+}
+.tool-chevron{
+  flex:0 0 auto;font-size:18px;font-weight:900;color:var(--muted);
+  transition:transform .18s ease
+}
+.tool-card.expanded .tool-chevron{transform:rotate(180deg)}
+
+.tool-diagram{
+  margin-top:12px;padding:14px 10px 10px;border-top:1px solid #e7e1ef
+}
+.tool-diagram-title{
+  text-align:center;font-size:13px;font-weight:950;margin-bottom:11px;color:var(--ink)
+}
+.diagram-flow{
+  display:grid;grid-template-columns:1fr auto 1fr auto 1fr;
+  align-items:center;gap:7px
+}
+.diagram-node{
+  min-width:0;padding:10px 6px;border:1px solid #e4deef;border-radius:14px;
+  background:#fff;text-align:center
+}
+.diagram-icon{
+  display:block;font-size:27px;line-height:1.1;margin-bottom:5px
+}
+.diagram-label{
+  display:block;font-size:12px;line-height:1.2;font-weight:900;color:var(--ink)
+}
+.diagram-arrow{
+  font-size:22px;font-weight:950;color:#8a82a1;text-align:center
+}
+.tool-use-row{
+  margin-top:11px;display:flex;justify-content:flex-end
+}
+.tool-use-btn{min-height:40px}
+.tool-card.selected .tool-use-btn{
+  background:var(--ink);border-color:var(--ink);color:#fff
+}
+.selected-tool small{display:none}
+
+@media(max-width:650px){
+  .diagram-flow{gap:4px}
+  .diagram-node{padding:9px 4px}
+  .diagram-icon{font-size:24px}
+  .diagram-label{font-size:11px}
+  .diagram-arrow{font-size:18px}
+  .tool-use-btn{width:100%}
+}
+
+.github-pages-note{
+  margin-top:12px;border:1px solid #dce4f4;border-radius:14px;padding:10px 12px;
+  background:#f6f9ff;font-size:12.5px;line-height:1.4;color:var(--muted)
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>🌟 <span id="plannerNameTitle"></span>’s After-School Mission</h1>
+  <p class="sub">A flexible planner to build routines, choose supports, set times, use alarms, save progress, and problem-solve when the child gets stuck.</p>
+
+  <div class="templatebar">
+    <strong>Routine template:</strong>
+    <select id="templateSelect"></select>
+    <button id="newTemplateBtn" class="softbtn">＋ New template</button>
+    <button id="renameTemplateBtn" class="softbtn">Rename</button>
+    <button id="deleteTemplateBtn" class="danger">Delete</button>
+    <span class="small-note">Use different templates for weekdays, therapy days, weekends, etc.</span>
+  </div>
+
+  <div class="toolbar">
+    <button id="sampleBtn" class="primary">Load example</button>
+    <button id="clearBtn" class="danger">Clear current routine</button>
+    <button id="saveBtn">Save now</button>
+    <button id="printBtn">Print / Save PDF</button>
+    <button id="enableAlarmBtn">🔔 Enable alarms</button>
+  </div>
+</header>
+
+<div class="layout">
+  <section class="panel">
+    <h2>Activity Bank</h2>
+    <div class="hint">Drag a card into the plan. On touch devices, tap a card to add it.</div>
+    <div id="bank" class="bank"></div>
+
+    <div class="section">
+      <h2 style="font-size:20px">Add my own activity to the Activity Bank</h2>
+      <div class="top-tools">
+        <input id="customText" type="text" placeholder="e.g. Feed the pet">
+        <button id="addCustom">➕ Add to Activity Bank</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 style="font-size:20px">🧰 Tools that may help</h2>
+      <div class="hint">Tap a tool to open a simple picture guide. You can open more than one tool at the same time.</div>
+      <div id="toolsGrid" class="tools-grid"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>My Sequence</h2>
+    <div class="hint">Drag tasks up or down. Each task can have a start time, duration, priority, warning, and status.</div>
+    <div id="sequence" class="sequence empty"></div>
+
+    <div class="dashboard">
+      <div class="status"><small>DOING NOW</small><strong id="currentText">—</strong></div>
+      <div class="status"><small>NEXT</small><strong id="nextText">—</strong></div>
+      <div class="status"><small>LATER</small><strong id="laterText">—</strong></div>
+    </div>
+
+    <div class="progress-wrap">
+      <strong>Progress: <span id="progressText">0 / 0</span></strong>
+      <div class="progress-line"><div id="progressFill" class="progress-fill"></div></div>
+    </div>
+
+    <div class="reward-panel">
+      <strong>🎯 My Motivation</strong>
+      <div class="small-note">The child can create her own motivation items, choose one for today, set how long it lasts, and link it to tasks that need to be completed first.</div>
+
+      <div class="top-tools" style="margin-top:9px">
+        <input id="motivationNameInput" type="text" placeholder="e.g. Minecraft / Drawing / YouTube">
+        <input id="motivationDurationInput" type="number" min="1" max="180" value="20" style="max-width:110px" title="Minutes">
+        <button id="addMotivationBtn">➕ Add motivation</button>
+      </div>
+
+      <div id="motivationBank" class="motivation-bank"></div>
+
+      <div class="unlock-box">
+        <strong>🔓 Unlock conditions</strong>
+        <div class="small-note">Choose which routine tasks need to be finished first.</div>
+        <div id="unlockTaskList" class="unlock-list"></div>
+      </div>
+
+      <div class="stuck-box" id="firstThenBox">First <strong>—</strong>, then <strong>—</strong>.</div>
+
+      <div class="timer-display" id="motivationTimerDisplay">00:00</div>
+      <div class="motivation-actions">
+        <button id="motivationStartBtn" class="primary">▶ Start motivation</button>
+        <button id="motivationPauseBtn">⏸ Pause</button>
+        <button id="motivationResumeBtn">⏯ Resume</button>
+        <button id="motivationStopBtn" class="danger">■ Stop</button>
+      </div>
+      <div class="small-note" id="motivationStatus">Choose a motivation item first.</div>
+    </div>
+
+    <div class="toolkit">
+      <h3 style="margin:0">🧰 My Support Toolkit</h3>
+      <div id="selectedTools" class="selected-tools"></div>
+    </div>
+
+    <div class="stuck-panel">
+      <strong>🆘 “I’m stuck” helper</strong>
+      <div class="small-note">If a task feels too big, choose the task and break it into 4–5 concrete actions. Complete one small action at a time.</div>
+
+      <div class="task-breakdown-controls">
+        <select id="stuckTaskSelect"></select>
+        <button id="useCurrentTaskBtn" class="softbtn">Use current task</button>
+        <button id="breakTaskBtn" class="primary">✨ Break it down</button>
+      </div>
+
+      <div id="actionNowBox" class="action-now">
+        <small>DO THIS NOW</small>
+        <strong>Choose a task and press “Break it down”.</strong>
+      </div>
+
+      <div id="breakdownSteps" class="breakdown-steps"></div>
+
+      <div class="breakdown-toolbar">
+        <button id="nextSmallStepBtn">➡ Next small step</button>
+        <button id="copyBreakdownBtn">📋 Copy steps</button>
+        <button id="resetBreakdownBtn">↺ Reset steps</button>
+      </div>
+      <div id="copyFeedback" class="copy-feedback"></div>
+      <div id="aiBreakdownStatus" class="ai-breakdown-status">
+        Built-in activities use the local step library. New/custom activities will try AI first; if AI is unavailable, the planner will create an offline 4–5 step fallback.
+      </div>
+
+      <div id="stuckBox" class="stuck-box">The helper will also suggest supports from the selected toolkit.</div>
+    </div>
+
+    <div class="alarm-panel">
+      <strong>🔔 Alarm / reminder function</strong>
+      <div class="small-note" id="alarmStatus">Alarms are off. Click “Enable alarms” above.</div>
+      <div class="notice">
+        While the planner is open, the timer alarm works normally. Browser notifications may also appear while the page is still running in the background.
+      </div>
+      <div class="github-pages-note">
+        <strong>GitHub Pages note:</strong> this website is fully static. A reliable notification after the app/browser is completely closed needs a separate push backend. GitHub Pages alone cannot schedule and send that server-side push.
+      </div>
+    </div>
+
+    <div class="sound-panel">
+      <strong>🔊 Alarm sound</strong>
+      <div class="sound-grid">
+        <div class="sound-row">
+          <label>Sound</label>
+          <select id="soundChoice">
+            <option value="chime">Gentle chime</option>
+            <option value="bell">Bell</option>
+            <option value="double">Double beep</option>
+            <option value="urgent">Urgent alarm</option>
+          </select>
+        </div>
+        <div class="sound-row">
+          <label>Volume: <span id="volumeLabel">70%</span></label>
+          <input id="volumeSlider" type="range" min="0" max="100" value="70">
+        </div>
+      </div>
+      <div class="sound-actions">
+        <button id="testSoundBtn">▶ Test sound</button>
+        <button id="stopSoundBtn">■ Stop sound</button>
+      </div>
+      <div class="small-note">Phone browsers may limit maximum loudness. The urgent alarm uses a repeated pattern so it is easier to notice even if the absolute volume is capped.</div>
+    </div>
+
+    <div class="save-state">
+      <strong>💾 Save progress on phone / tablet</strong>
+      <div class="small-note" id="saveStatus">Auto-save is on. Changes are saved in this browser on this device.</div>
+      <div class="save-actions">
+        <button id="exportBtn">⬇ Export backup</button>
+        <button id="importBtn">⬆ Import backup</button>
+        <input id="importFile" class="file-input" type="file" accept=".json,application/json">
+      </div>
+      <div class="small-note">For the most reliable phone use, keep a backup file. Some mobile browsers may clear local file data, especially when the HTML is opened from the Files app rather than a regular website.</div>
+    </div>
+  </section>
+</div>
+
+<div class="footer">Best used collaboratively: first let the child choose the order and supports, then review what seems realistic, what is hardest, and what needs adjusting.</div>
+</div>
+
+<script>
+const activityCategories=["Everyday","School","Self-care","Chores","Fun","Going out","More"];
+
+const activities=[
+{icon:"🏠",label:"Arrive home",category:"Everyday"},
+{icon:"🥣",label:"Breakfast",category:"Everyday"},
+{icon:"🍎",label:"Snack",category:"Everyday"},
+{icon:"🥪",label:"Lunch",category:"Everyday"},
+{icon:"🍽️",label:"Dinner",category:"Everyday"},
+{icon:"💧",label:"Drink water",category:"Everyday"},
+{icon:"🛋️",label:"Short break",category:"Everyday"},
+{icon:"🤫",label:"Quiet time",category:"Everyday"},
+{icon:"👨‍👩‍👧",label:"Family time",category:"Everyday"},
+
+{icon:"🎒",label:"Put school bag away",category:"School"},
+{icon:"📒",label:"Check homework",category:"School"},
+{icon:"✏️",label:"Start homework",category:"School"},
+{icon:"⏸️",label:"Homework break",category:"School"},
+{icon:"🎒",label:"Pack school bag",category:"School"},
+{icon:"📖",label:"Reading",category:"School"},
+
+{icon:"🚻",label:"Toilet",category:"Self-care"},
+{icon:"👕",label:"Change clothes",category:"Self-care"},
+{icon:"🚿",label:"Shower",category:"Self-care"},
+{icon:"🪥",label:"Brush teeth",category:"Self-care"},
+{icon:"👚",label:"Get clothes ready",category:"Self-care"},
+{icon:"🧼",label:"Wash hands",category:"Self-care"},
+{icon:"💊",label:"Take medication",category:"Self-care"},
+{icon:"🛏️",label:"Bedtime",category:"Self-care"},
+
+{icon:"🧹",label:"Chores",category:"Chores"},
+{icon:"🧺",label:"Hang clothes",category:"Chores"},
+{icon:"👕",label:"Fold clothes",category:"Chores"},
+
+{icon:"🎮",label:"Free time",category:"Fun"},
+{icon:"🎨",label:"Drawing",category:"Fun"},
+{icon:"🤸",label:"Movement break",category:"Fun"},
+{icon:"🌳",label:"Outdoor play",category:"Fun"},
+
+{icon:"🥋",label:"Sport / class",category:"Going out"},
+{icon:"🩺",label:"Appointment",category:"Going out"},
+{icon:"📚",label:"Library",category:"Going out"},
+{icon:"🛒",label:"Shopping",category:"Going out"}
+];
+
+
+const tools=[
+{
+  icon:"⏱️",name:"Visual timer",
+  diagram:{leftIcon:"▶️",left:"Start",midIcon:"⏱️",mid:"Watch time",rightIcon:"✅",right:"Finish"}
+},
+{
+  icon:"✅",name:"Checklist",
+  diagram:{leftIcon:"👀",left:"Look",midIcon:"☑️",mid:"Tick one",rightIcon:"➡️",right:"Next"}
+},
+{
+  icon:"🔁",name:"First–Then",
+  diagram:{leftIcon:"1️⃣",left:"First",midIcon:"➡️",mid:"Finish it",rightIcon:"2️⃣",right:"Then"}
+},
+{
+  icon:"🔔",name:"5-minute warning",
+  diagram:{leftIcon:"🔔",left:"5 min left",midIcon:"🧩",mid:"Finish part",rightIcon:"➡️",right:"Change"}
+},
+{
+  icon:"1️⃣",name:"One step at a time",
+  diagram:{leftIcon:"👀",left:"See 1 step",midIcon:"✋",mid:"Do it",rightIcon:"➡️",right:"Next step"}
+},
+{
+  icon:"🚀",name:"5-minute start",
+  diagram:{leftIcon:"⏱️",left:"5 minutes",midIcon:"🚀",mid:"Start",rightIcon:"❓",right:"Keep going?"}
+},
+{
+  icon:"👥",name:"Body doubling",
+  diagram:{leftIcon:"🧑",left:"You work",midIcon:"＋",mid:"Together",rightIcon:"🧑‍🦱",right:"Person nearby"}
+},
+{
+  icon:"⏸️",name:"Planned break",
+  diagram:{leftIcon:"📝",left:"Plan break",midIcon:"⏸️",mid:"Take break",rightIcon:"▶️",right:"Go back"}
+},
+{
+  icon:"🎧",name:"Low-distraction setup",
+  diagram:{leftIcon:"🔇",left:"Less noise",midIcon:"🧹",mid:"Clear space",rightIcon:"🎯",right:"Focus"}
+},
+{
+  icon:"🧺",name:"Ready station",
+  diagram:{leftIcon:"📍",left:"One place",midIcon:"🎒",mid:"Put things",rightIcon:"👀",right:"Check before go"}
+},
+{
+  icon:"📱",name:"Reminder / alarm",
+  diagram:{leftIcon:"📝",left:"Set reminder",midIcon:"🔔",mid:"Alarm rings",rightIcon:"▶️",right:"Start task"}
+},
+{
+  icon:"🙋",name:"Ask-for-help cue",
+  diagram:{leftIcon:"🛑",left:"I’m stuck",midIcon:"🙋",mid:"Ask",rightIcon:"➡️",right:"Try next step"}
+}
+];
+
+const PROFILE_KEY="otRoutinePlannerActiveProfileV9";
+const PROFILE_LIST_KEY="otRoutinePlannerProfilesV9";
+let ACTIVE_PROFILE=null;
+try{ ACTIVE_PROFILE=JSON.parse(localStorage.getItem(PROFILE_KEY)||"null"); }catch{}
+if(!ACTIVE_PROFILE || !ACTIVE_PROFILE.id || !ACTIVE_PROFILE.name){
+  window.location.replace("./index.html");
+}
+const PROFILE_ID=ACTIVE_PROFILE?.id || "default";
+const APP_KEY=`otRoutinePlannerV9App_${PROFILE_ID}`;
+
+// If this browser already used an older named v8/v7 planner on the same website,
+// try to migrate that child's existing entries the first time this profile opens.
+const LEGACY_NAME_KEY=String(ACTIVE_PROFILE?.name||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"");
+const LEGACY_V8=LEGACY_NAME_KEY ? `${LEGACY_NAME_KEY}RoutineV8App` : null;
+const LEGACY_V7=LEGACY_NAME_KEY ? `${LEGACY_NAME_KEY}RoutineV7App` : null;
+const LEGACY_V6=LEGACY_NAME_KEY ? `${LEGACY_NAME_KEY}RoutineV6App` : null;
+const LEGACY_V5=LEGACY_NAME_KEY ? `${LEGACY_NAME_KEY}RoutineV5App` : null;
+const LEGACY_V4=LEGACY_NAME_KEY ? `${LEGACY_NAME_KEY}RoutineV4` : null;
+
+let state={
+  version:8,
+  currentTemplateId:"default",
+  templates:[
+    {id:"default",name:"Weekday",plan:[],selectedToolNames:[],reward:"",motivationItems:[],selectedMotivationId:null,unlockTaskIds:[],taskBreakdownProgress:{}}
+  ],
+  customActivities:[],
+  soundChoice:"chime",
+  alarmVolume:0.70,
+  alarmsEnabled:false
+};
+
+let audioCtx=null;
+let activeOscillators=[];
+let autoSaveTimer=null;
+let fired={};
+let motivationTimerInterval=null;
+let motivationRemainingSeconds=0;
+let motivationRunning=false;
+let motivationPaused=false;
+// Expanded tool cards are UI-only and reset on every refresh.
+let expandedToolNames=new Set();
+
+function uid(){return "id-"+Date.now()+"-"+Math.random().toString(16).slice(2)}
+function toneClass(i){return "tone"+((i%5)+1)}
+function currentTemplate(){return state.templates.find(t=>t.id===state.currentTemplateId) || state.templates[0]}
+function ensureTaskShape(t){
+  if(!("timerEndAt" in t)) t.timerEndAt=null;
+  if(!("timerPausedRemaining" in t)) t.timerPausedRemaining=null;
+  if(!("timerFinished" in t)) t.timerFinished=false;
+}
+function plan(){return currentTemplate().plan}
+function setPlan(newPlan){currentTemplate().plan=newPlan}
+function selectedTools(){return currentTemplate().selectedToolNames}
+function setSelectedTools(arr){currentTemplate().selectedToolNames=arr}
+function reward(){return currentTemplate().reward||""}
+function setReward(v){currentTemplate().reward=v}
+function motivationItems(){return currentTemplate().motivationItems||[]}
+function selectedMotivationId(){return currentTemplate().selectedMotivationId||null}
+function setSelectedMotivationId(id){currentTemplate().selectedMotivationId=id}
+function unlockTaskIds(){return currentTemplate().unlockTaskIds||[]}
+function setUnlockTaskIds(ids){currentTemplate().unlockTaskIds=ids}
+function selectedMotivation(){return motivationItems().find(x=>x.id===selectedMotivationId())||null}
+
+function newTask(icon,label){
+  return {id:uid(),icon,label,start:"",duration:15,priority:"Must do",warning:"5",status:"not",startedAt:null,timerEndAt:null,timerPausedRemaining:null,timerFinished:false};
+}
+
+function ensureTemplateShape(t){
+  if(!Array.isArray(state.customActivities)) state.customActivities=[];
+  if(!Array.isArray(t.plan)) t.plan=[];
+  t.plan.forEach(ensureTaskShape);
+  if(!Array.isArray(t.selectedToolNames)) t.selectedToolNames=[];
+  if(!Array.isArray(t.motivationItems)) t.motivationItems=[];
+  if(!Array.isArray(t.unlockTaskIds)) t.unlockTaskIds=[];
+  if(!("selectedMotivationId" in t)) t.selectedMotivationId=null;
+  if(!("reward" in t)) t.reward="";
+  if(!t.taskBreakdownProgress || typeof t.taskBreakdownProgress!=="object") t.taskBreakdownProgress={};
+}
+function renderTemplateBar(){
+  state.templates.forEach(ensureTemplateShape);
+  const sel=document.getElementById("templateSelect");
+  sel.innerHTML="";
+  state.templates.forEach(t=>{
+    const opt=document.createElement("option");
+    opt.value=t.id; opt.textContent=t.name;
+    if(t.id===state.currentTemplateId) opt.selected=true;
+    sel.appendChild(opt);
+  });
+}
+
+function renderBank(){
+  const bank=document.getElementById("bank");
+  bank.innerHTML="";
+
+  const combined=[
+    ...activities.map((a,i)=>({
+      icon:a.icon,
+      label:a.label,
+      custom:false,
+      bankId:"builtin-"+i
+    })),
+    ...(state.customActivities||[]).map(a=>({
+      icon:a.icon||"⭐",
+      label:a.label,
+      custom:true,
+      bankId:a.id
+    }))
+  ];
+
+  combined.forEach((a,i)=>{
+    const el=document.createElement("div");
+    el.className="activity "+toneClass(i)+(a.custom?" custom-activity":"");
+    el.draggable=true;
+    el.innerHTML=`<span class="icon">${a.icon}</span><span class="label">${a.label}</span>${a.custom?'<button class="custom-remove" title="Remove from Activity Bank">✕</button>':""}`;
+
+    el.addEventListener("dragstart",e=>{
+      e.dataTransfer.setData("text/plain",JSON.stringify({icon:a.icon,label:a.label}));
+      e.dataTransfer.effectAllowed="copy";
+    });
+
+    el.addEventListener("click",e=>{
+      if(e.target.closest(".custom-remove")) return;
+      plan().push(newTask(a.icon,a.label));
+      renderPlan();
+    });
+
+    if(a.custom){
+      el.querySelector(".custom-remove").onclick=(e)=>{
+        e.stopPropagation();
+        state.customActivities=(state.customActivities||[]).filter(x=>x.id!==a.bankId);
+        renderBank();
+        scheduleAutoSave();
+      };
+    }
+
+    bank.appendChild(el);
+  });
+}
+
+function renderTools(){
+  const grid=document.getElementById("toolsGrid");
+  grid.innerHTML="";
+
+  tools.forEach(t=>{
+    const selected=selectedTools().includes(t.name);
+    const expanded=expandedToolNames.has(t.name);
+    const d=t.diagram;
+
+    const el=document.createElement("div");
+    el.className="tool-card"+(selected?" selected":"")+(expanded?" expanded":"");
+
+    el.innerHTML=`
+      <div class="tool-title">
+        <div class="tool-title-main">
+          <span style="font-size:23px">${t.icon}</span>
+          <span>${t.name}</span>
+        </div>
+        <span class="tool-chevron" aria-hidden="true">⌄</span>
+      </div>
+
+      ${expanded?`
+        <div class="tool-diagram">
+          <div class="tool-diagram-title">How to use it</div>
+          <div class="diagram-flow" role="img" aria-label="${t.name} simple visual guide">
+            <div class="diagram-node">
+              <span class="diagram-icon">${d.leftIcon}</span>
+              <span class="diagram-label">${d.left}</span>
+            </div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node">
+              <span class="diagram-icon">${d.midIcon}</span>
+              <span class="diagram-label">${d.mid}</span>
+            </div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node">
+              <span class="diagram-icon">${d.rightIcon}</span>
+              <span class="diagram-label">${d.right}</span>
+            </div>
+          </div>
+
+          <div class="tool-use-row">
+            <button class="tool-use-btn">${selected?"✓ I’m using this":"＋ Use this tool"}</button>
+          </div>
+        </div>
+      `:""}
+    `;
+
+    // Multi-expandable: each card toggles itself only.
+    el.onclick=(e)=>{
+      if(e.target.closest(".tool-use-btn")) return;
+      if(expandedToolNames.has(t.name)){
+        expandedToolNames.delete(t.name);
+      }else{
+        expandedToolNames.add(t.name);
+      }
+      renderTools();
+    };
+
+    const useBtn=el.querySelector(".tool-use-btn");
+    if(useBtn){
+      useBtn.onclick=(e)=>{
+        e.stopPropagation();
+        if(selectedTools().includes(t.name)){
+          setSelectedTools(selectedTools().filter(x=>x!==t.name));
+        }else{
+          setSelectedTools([...selectedTools(),t.name]);
+        }
+        renderTools();
+        renderSelectedTools();
+        updateStuckBox();
+        scheduleAutoSave();
+      };
+    }
+
+    grid.appendChild(el);
+  });
+}
+
+function renderSelectedTools(){
+  const box=document.getElementById("selectedTools");
+  box.innerHTML="";
+  const chosen=tools.filter(t=>selectedTools().includes(t.name));
+  if(!chosen.length){
+    box.innerHTML='<span class="small-note">No tools selected yet.</span>';
+    return;
+  }
+  chosen.forEach(t=>{
+    const el=document.createElement("div");
+    el.className="selected-tool";
+    el.innerHTML=`<span style="font-size:21px">${t.icon}</span><div><strong>${t.name}</strong></div>`;
+    box.appendChild(el);
+  });
+}
+
+
+function renderMotivationBank(){
+  const bank=document.getElementById("motivationBank");
+  if(!bank) return;
+  bank.innerHTML="";
+  const items=motivationItems();
+  if(!items.length){
+    bank.innerHTML='<div class="small-note">No motivation items yet. Add something the child genuinely wants to work towards.</div>';
+    return;
+  }
+  items.forEach(item=>{
+    const el=document.createElement("div");
+    const selected=item.id===selectedMotivationId();
+    el.className="motivation-card"+(selected?" selected":"");
+    el.innerHTML=`<div class="motivation-title"><span>${item.icon||"⭐"}</span><span>${item.name}</span></div>
+                  <div class="motivation-meta">${item.duration} min</div>
+                  <div class="motivation-actions">
+                    <button class="selectMotivation">${selected?"✓ Selected":"Choose"}</button>
+                    <button class="removeMotivation danger">Remove</button>
+                  </div>`;
+    el.querySelector(".selectMotivation").onclick=(e)=>{
+      e.stopPropagation();
+      setSelectedMotivationId(item.id);
+      motivationRemainingSeconds=item.duration*60;
+      motivationRunning=false; motivationPaused=false;
+      renderMotivationBank(); renderUnlockTaskList(); updateFirstThen(); updateMotivationTimerDisplay(); scheduleAutoSave();
+    };
+    el.querySelector(".removeMotivation").onclick=(e)=>{
+      e.stopPropagation();
+      currentTemplate().motivationItems=motivationItems().filter(x=>x.id!==item.id);
+      if(selectedMotivationId()===item.id) setSelectedMotivationId(null);
+      renderMotivationBank(); renderUnlockTaskList(); updateFirstThen(); updateMotivationTimerDisplay(); scheduleAutoSave();
+    };
+    bank.appendChild(el);
+  });
+}
+
+function renderUnlockTaskList(){
+  const box=document.getElementById("unlockTaskList");
+  if(!box) return;
+  box.innerHTML="";
+  if(!selectedMotivation()){
+    box.innerHTML='<div class="small-note">Choose a motivation item first.</div>';
+    return;
+  }
+  if(!plan().length){
+    box.innerHTML='<div class="small-note">Add routine tasks first, then choose which ones unlock the motivation.</div>';
+    return;
+  }
+  plan().forEach(t=>{
+    const row=document.createElement("label");
+    row.className="unlock-item";
+    const checked=unlockTaskIds().includes(t.id);
+    row.innerHTML=`<input type="checkbox" ${checked?"checked":""}> <span>${t.icon} ${t.label}</span>`;
+    const cb=row.querySelector("input");
+    cb.onchange=()=>{
+      let ids=unlockTaskIds().slice();
+      if(cb.checked && !ids.includes(t.id)) ids.push(t.id);
+      if(!cb.checked) ids=ids.filter(id=>id!==t.id);
+      setUnlockTaskIds(ids);
+      updateFirstThen(); updateMotivationStatus(); scheduleAutoSave();
+    };
+    box.appendChild(row);
+  });
+}
+
+function motivationUnlocked(){
+  const ids=unlockTaskIds();
+  if(!ids.length) return true;
+  return ids.every(id=>{
+    const t=plan().find(x=>x.id===id);
+    return t && t.status==="done";
+  });
+}
+
+function updateMotivationStatus(){
+  const el=document.getElementById("motivationStatus");
+  if(!el) return;
+  const m=selectedMotivation();
+  if(!m){el.textContent="Choose a motivation item first.";return;}
+  if(motivationRunning && !motivationPaused){el.textContent=`Motivation time is running: ${m.name}.`;return;}
+  if(motivationPaused){el.textContent=`Paused: ${m.name}.`;return;}
+  if(motivationUnlocked()){
+    el.textContent=`Unlocked: ${m.name} for ${m.duration} minutes.`;
+  }else{
+    const left=unlockTaskIds().filter(id=>{
+      const t=plan().find(x=>x.id===id);
+      return !(t && t.status==="done");
+    }).length;
+    el.textContent=`Locked: complete ${left} linked task${left===1?"":"s"} first.`;
+  }
+}
+
+function updateMotivationTimerDisplay(){
+  const el=document.getElementById("motivationTimerDisplay");
+  if(!el) return;
+  const m=selectedMotivation();
+  if(!m){el.textContent="00:00";updateMotivationStatus();return;}
+  if(motivationRemainingSeconds<=0 && !motivationRunning && !motivationPaused){
+    motivationRemainingSeconds=m.duration*60;
+  }
+  const mm=String(Math.floor(motivationRemainingSeconds/60)).padStart(2,"0");
+  const ss=String(motivationRemainingSeconds%60).padStart(2,"0");
+  el.textContent=`${mm}:${ss}`;
+  updateMotivationStatus();
+}
+
+function stopMotivationTimer(reset=true){
+  clearInterval(motivationTimerInterval);
+  motivationTimerInterval=null;
+  motivationRunning=false; motivationPaused=false;
+  if(reset){
+    const m=selectedMotivation();
+    motivationRemainingSeconds=m?m.duration*60:0;
+  }
+  updateMotivationTimerDisplay();
+}
+
+function startMotivationTimer(){
+  const m=selectedMotivation();
+  if(!m){alert("Choose a motivation item first.");return;}
+  if(!motivationUnlocked()){alert("The selected motivation is still locked. Complete the linked tasks first.");return;}
+  if(motivationRemainingSeconds<=0) motivationRemainingSeconds=m.duration*60;
+  clearInterval(motivationTimerInterval);
+  motivationRunning=true; motivationPaused=false;
+  updateMotivationTimerDisplay();
+  motivationTimerInterval=setInterval(()=>{
+    motivationRemainingSeconds--;
+    updateMotivationTimerDisplay();
+    if(motivationRemainingSeconds<=0){
+      clearInterval(motivationTimerInterval);
+      motivationTimerInterval=null;
+      motivationRunning=false; motivationPaused=false;
+      playAlarmSound();
+      alert(`Motivation time finished: ${m.name}\n\nWhat’s next in the routine?`);
+      motivationRemainingSeconds=m.duration*60;
+      updateMotivationTimerDisplay();
+    }
+  },1000);
+}
+
+function pauseMotivationTimer(){
+  if(!motivationRunning) return;
+  clearInterval(motivationTimerInterval);
+  motivationTimerInterval=null;
+  motivationRunning=false; motivationPaused=true;
+  updateMotivationTimerDisplay();
+}
+function resumeMotivationTimer(){
+  if(!motivationPaused) return;
+  startMotivationTimer();
+}
+
+
+function taskTimerRemaining(t){
+  ensureTaskShape(t);
+  if(t.status==="done") return 0;
+  if(t.timerEndAt) return Math.max(0,Math.ceil((Number(t.timerEndAt)-Date.now())/1000));
+  if(t.timerPausedRemaining!==null && t.timerPausedRemaining!==undefined) return Math.max(0,Number(t.timerPausedRemaining));
+  return Math.max(1,Number(t.duration)||15)*60;
+}
+
+function formatSeconds(total){
+  total=Math.max(0,Math.floor(Number(total)||0));
+  const h=Math.floor(total/3600);
+  const m=Math.floor((total%3600)/60);
+  const s=total%60;
+  return h>0
+    ? `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`
+    : `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+
+function taskTimerText(t){
+  if(t.status==="done") return "DONE";
+  if(t.timerFinished) return "00:00";
+  return formatSeconds(taskTimerRemaining(t));
+}
+
+function startTaskTimer(t){
+  ensureTaskShape(t);
+  plan().forEach(x=>{
+    if(x.id!==t.id && x.status==="doing") x.status="not";
+  });
+  let remaining=t.timerPausedRemaining!==null && Number(t.timerPausedRemaining)>0
+    ? Number(t.timerPausedRemaining)
+    : Math.max(1,Number(t.duration)||15)*60;
+  t.timerEndAt=Date.now()+remaining*1000;
+  t.timerPausedRemaining=null;
+  t.timerFinished=false;
+  t.status="doing";
+  t.startedAt=Date.now();
+  fired={};
+  renderPlan();
+}
+
+function pauseTaskTimer(t){
+  ensureTaskShape(t);
+  if(!t.timerEndAt) return;
+  t.timerPausedRemaining=taskTimerRemaining(t);
+  t.timerEndAt=null;
+  scheduleAutoSave();
+  updateAllTaskTimers();
+}
+
+function resumeTaskTimer(t){
+  ensureTaskShape(t);
+  if(t.timerPausedRemaining===null || Number(t.timerPausedRemaining)<=0) return startTaskTimer(t);
+  t.timerEndAt=Date.now()+Number(t.timerPausedRemaining)*1000;
+  t.timerPausedRemaining=null;
+  t.status="doing";
+  t.timerFinished=false;
+  scheduleAutoSave();
+  updateAllTaskTimers();
+}
+
+function resetTaskTimer(t){
+  ensureTaskShape(t);
+  t.timerEndAt=null;
+  t.timerPausedRemaining=Math.max(1,Number(t.duration)||15)*60;
+  t.timerFinished=false;
+  if(t.status!=="done") t.status="not";
+  t.startedAt=null;
+  updateAllTaskTimers();
+  scheduleAutoSave();
+}
+
+function finishTaskTimer(t){
+  ensureTaskShape(t);
+  t.timerEndAt=null;
+  t.timerPausedRemaining=0;
+  t.timerFinished=true;
+  t.status="done";
+  t.startedAt=null;
+  renderPlan();
+}
+
+function updateAllTaskTimers(){
+  let changed=false;
+  plan().forEach(t=>{
+    ensureTaskShape(t);
+    const node=document.querySelector(`[data-task-timer="${t.id}"]`);
+    const box=document.querySelector(`[data-task-timer-box="${t.id}"]`);
+    const remaining=taskTimerRemaining(t);
+
+    if(t.timerEndAt && remaining<=0 && !t.timerFinished){
+      t.timerEndAt=null;
+      t.timerPausedRemaining=0;
+      t.timerFinished=true;
+      changed=true;
+      playAlarmSound();
+      setTimeout(()=>alert(`Time is up: ${t.label}\n\nFinish the task, extend the timer, or move to the next activity.`),0);
+    }
+
+    if(node) node.textContent=taskTimerText(t);
+    if(box){
+      box.classList.toggle("running",!!t.timerEndAt);
+      box.classList.toggle("finished",!!t.timerFinished || t.status==="done");
+    }
+  });
+  if(changed) scheduleAutoSave();
+}
+setInterval(updateAllTaskTimers,1000);
+
+function renderPlan(){
+  const sequence=document.getElementById("sequence");
+  sequence.innerHTML="";
+  sequence.classList.toggle("empty",plan().length===0);
+
+  plan().forEach((t,i)=>{
+    ensureTaskShape(t);
+    const el=document.createElement("div");
+    el.className="seq-item "+(t.status==="doing"?"doing":t.status==="done"?"done":"");
+    el.draggable=true;
+    el.innerHTML=`
+      <div class="seq-top">
+        <div class="num">${i+1}</div>
+        <div class="seq-main"><span class="icon">${t.icon}</span><span class="label">${t.label}</span></div>
+        <div class="controls">
+          <button class="mini up">↑</button>
+          <button class="mini down">↓</button>
+          <button class="mini remove">✕</button>
+        </div>
+      </div>
+      <div class="task-timer-box ${t.timerEndAt?"running":(t.timerFinished||t.status==="done"?"finished":"")}" data-task-timer-box="${t.id}">
+        <div>
+          <div class="task-timer-label">ACTIVITY TIMER</div>
+          <div class="task-timer-value" data-task-timer="${t.id}">${taskTimerText(t)}</div>
+        </div>
+        <div class="timer-controls">
+          <button class="taskTimerStart">${t.timerPausedRemaining!==null && Number(t.timerPausedRemaining)>0 && !t.timerEndAt ? "▶ Resume" : "▶ Start"}</button>
+          <button class="taskTimerPause">⏸ Pause</button>
+          <button class="taskTimerReset">↺ Timer</button>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="field"><label>Start time</label><input class="start" type="time" value="${t.start||""}"></div>
+        <div class="field"><label>Duration (min)</label><input class="duration" type="number" min="1" max="240" value="${t.duration||15}"></div>
+        <div class="field"><label>Priority</label>
+          <select class="priority">
+            <option ${t.priority==="Must do"?"selected":""}>Must do</option>
+            <option ${t.priority==="Optional"?"selected":""}>Optional</option>
+          </select>
+        </div>
+        <div class="field"><label>Warning</label>
+          <select class="warning">
+            <option value="0" ${String(t.warning)==="0"?"selected":""}>None</option>
+            <option value="2" ${String(t.warning)==="2"?"selected":""}>2 min</option>
+            <option value="5" ${String(t.warning)==="5"?"selected":""}>5 min</option>
+            <option value="10" ${String(t.warning)==="10"?"selected":""}>10 min</option>
+          </select>
+        </div>
+        <div class="field"><label>Status</label>
+          <div class="status-btns">
+            <button class="startNow">▶</button>
+            <button class="doneBtn">✓</button>
+            <button class="resetBtn">↺</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    el.addEventListener("dragstart",e=>{
+      e.dataTransfer.setData("text/seq-index",String(i));
+      e.dataTransfer.effectAllowed="move";
+    });
+    el.addEventListener("dragover",e=>e.preventDefault());
+    el.addEventListener("drop",e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const seqIndex=e.dataTransfer.getData("text/seq-index");
+      if(seqIndex!==""){
+        const from=Number(seqIndex);
+        const p=plan();
+        const [moved]=p.splice(from,1);
+        let to=i;
+        if(from<i) to--;
+        p.splice(to,0,moved);
+      }else{
+        try{
+          const d=JSON.parse(e.dataTransfer.getData("text/plain"));
+          plan().splice(i,0,newTask(d.icon,d.label));
+        }catch{}
+      }
+      renderPlan();
+    });
+
+    el.querySelector(".up").onclick=()=>{if(i>0){const p=plan(); [p[i-1],p[i]]=[p[i],p[i-1]]; renderPlan()}};
+    el.querySelector(".down").onclick=()=>{if(i<plan().length-1){const p=plan(); [p[i+1],p[i]]=[p[i],p[i+1]]; renderPlan()}};
+    el.querySelector(".remove").onclick=()=>{plan().splice(i,1); renderPlan()};
+    el.querySelector(".start").onchange=e=>{t.start=e.target.value; fired={}; updateDashboard(); scheduleAutoSave()};
+    el.querySelector(".duration").onchange=e=>{
+      t.duration=Math.max(1,Number(e.target.value)||1);
+      if(!t.timerEndAt){t.timerPausedRemaining=t.duration*60;t.timerFinished=false;}
+      fired={}; updateDashboard(); updateAllTaskTimers(); scheduleAutoSave();
+    };
+    el.querySelector(".priority").onchange=e=>{t.priority=e.target.value; scheduleAutoSave()};
+    el.querySelector(".warning").onchange=e=>{t.warning=e.target.value; fired={}; scheduleAutoSave()};
+    el.querySelector(".taskTimerStart").onclick=()=>{t.timerEndAt?null:(t.timerPausedRemaining!==null&&Number(t.timerPausedRemaining)>0?resumeTaskTimer(t):startTaskTimer(t))};
+    el.querySelector(".taskTimerPause").onclick=()=>pauseTaskTimer(t);
+    el.querySelector(".taskTimerReset").onclick=()=>resetTaskTimer(t);
+    el.querySelector(".startNow").onclick=()=>startTaskTimer(t);
+    el.querySelector(".doneBtn").onclick=()=>finishTaskTimer(t);
+    el.querySelector(".resetBtn").onclick=()=>{t.status="not";t.startedAt=null;resetTaskTimer(t);renderPlan()};
+    sequence.appendChild(el);
+  });
+
+  updateDashboard();
+  renderUnlockTaskList();
+  updateFirstThen();
+  updateStuckBox();
+  populateStuckTaskSelect();
+  renderTaskBreakdown(document.getElementById("stuckTaskSelect")?.value || null);
+  updateMotivationTimerDisplay();
+  scheduleAutoSave();
+}
+
+function updateDashboard(){
+  const p=plan();
+  const doing=p.find(t=>t.status==="doing");
+  const remaining=p.filter(t=>t.status!=="done");
+  const current=doing || remaining[0] || null;
+  let next=null, later=null;
+  if(current){
+    const idx=p.indexOf(current);
+    const future=p.slice(idx+1).filter(t=>t.status!=="done");
+    next=future[0] || null;
+    later=future[1] || null;
+  }
+  document.getElementById("currentText").textContent=current?current.label:"—";
+  document.getElementById("nextText").textContent=next?next.label:"—";
+  document.getElementById("laterText").textContent=later?later.label:"—";
+
+  const done=p.filter(t=>t.status==="done").length;
+  document.getElementById("progressText").textContent=`${done} / ${p.length}`;
+  document.getElementById("progressFill").style.width=(p.length?done/p.length*100:0)+"%";
+}
+
+function updateFirstThen(){
+  const p=plan();
+  const current=p.find(t=>t.status==="doing") || p.find(t=>t.status!=="done") || null;
+  const m=selectedMotivation();
+  const motivationText=m ? `${m.name} (${m.duration} min)` : "choose a motivation";
+  document.getElementById("firstThenBox").innerHTML=`First <strong>${current?current.label:"—"}</strong>, then <strong>${motivationText}</strong>.`;
+}
+
+
+const taskBreakdownLibrary={
+  "arrive home":[
+    "Walk inside and close the door.",
+    "Put your shoes and personal items in their usual place.",
+    "Take your school bag to the usual bag area.",
+    "Check what the next activity is.",
+    "Start the next activity on the planner."
+  ],
+  "put school bag away":[
+    "Carry the school bag to its usual place.",
+    "Put the bag down or hang it up.",
+    "Take out the lunchbox and drink bottle.",
+    "Put homework or important papers in the homework area.",
+    "Check the planner for the next task."
+  ],
+  "toilet":[
+    "Go into the bathroom and use the toilet.",
+    "Wipe as needed.",
+    "Flush the toilet.",
+    "Wash your hands with soap.",
+    "Dry your hands and return to the planner."
+  ],
+  "change clothes":[
+    "Choose the clothes you want to wear at home.",
+    "Take off your school clothes.",
+    "Put school clothes in the laundry basket or usual place.",
+    "Put on your home clothes.",
+    "Put shoes and other clothing away."
+  ],
+  "breakfast":[
+    "Go to the kitchen or eating area.",
+    "Choose or get your breakfast and a drink.",
+    "Sit down and eat your breakfast.",
+    "Put dishes, wrappers or containers in the correct place.",
+    "Check what comes next on the planner."
+  ],
+  "lunch":[
+    "Go to the eating area and get your lunch.",
+    "Get a drink if needed.",
+    "Sit down and eat your lunch.",
+    "Put rubbish, dishes or containers away.",
+    "Check what comes next on the planner."
+  ],
+  "snack":[
+    "Choose one snack.",
+    "Get a drink or fill your water bottle.",
+    "Sit down and have your snack.",
+    "Put rubbish, dishes or containers away.",
+    "Check the next task on the planner."
+  ],
+  "drink water":[
+    "Get your cup or water bottle.",
+    "Fill it with water.",
+    "Drink some water.",
+    "Put the cup or bottle back.",
+    "Check the next task."
+  ],
+  "short break":[
+    "Choose one short break activity.",
+    "Set the break timer.",
+    "Start the break.",
+    "Stop when the timer finishes.",
+    "Check the next activity on the planner."
+  ],
+  "quiet time":[
+    "Choose one quiet activity.",
+    "Go to a comfortable quiet space.",
+    "Set a timer if needed.",
+    "Do the quiet activity until the timer finishes.",
+    "Return to the planner."
+  ],
+  "check homework":[
+    "Open your school planner, portal or homework list.",
+    "Check which subjects have homework.",
+    "Look at the due dates.",
+    "Choose which homework task to do first.",
+    "Get the materials needed for that task."
+  ],
+  "start homework":[
+    "Clear a small space to work.",
+    "Get the materials you need.",
+    "Choose the first question or first small part.",
+    "Set a timer if that helps.",
+    "Start the first small part."
+  ],
+  "movement break":[
+    "Choose one movement activity.",
+    "Set a short timer.",
+    "Do the movement activity.",
+    "Stop when the timer finishes.",
+    "Return to the next task."
+  ],
+  "free time":[
+    "Choose what you want to do for free time.",
+    "Set the agreed timer.",
+    "Start the activity.",
+    "Stop or save your activity when the timer finishes.",
+    "Check what comes next."
+  ],
+  "shower":[
+    "Get a towel and clean clothes ready.",
+    "Turn on the shower and get in.",
+    "Wash your body and hair as needed.",
+    "Rinse, turn off the shower and dry yourself.",
+    "Put on clean clothes and put used clothes in the laundry."
+  ],
+  "dinner":[
+    "Go to the eating area.",
+    "Get your meal, drink and utensils.",
+    "Sit down and eat your meal.",
+    "Put your plate, cup and utensils in the usual place.",
+    "Check the next activity."
+  ],
+  "brush teeth":[
+    "Get your toothbrush and toothpaste.",
+    "Put toothpaste on the toothbrush.",
+    "Brush all sides of your teeth for about 2 minutes.",
+    "Spit and rinse as needed.",
+    "Put the toothbrush and toothpaste away."
+  ],
+  "pack school bag":[
+    "Check tomorrow’s timetable or school schedule.",
+    "Put the books and homework you need into the bag.",
+    "Pack your laptop, charger or school equipment if needed.",
+    "Prepare your lunchbox and water bottle area.",
+    "Zip the bag and put it in the ready-to-go place."
+  ],
+  "get clothes ready":[
+    "Check tomorrow’s weather and activities.",
+    "Choose a top.",
+    "Choose bottoms and underwear/socks.",
+    "Choose shoes or any extra items you need.",
+    "Put everything together in one ready-to-wear place."
+  ],
+  "homework break":[
+    "Stop at a clear point in the homework.",
+    "Choose one short break activity.",
+    "Set the break timer.",
+    "Stop when the timer finishes.",
+    "Return to the next homework step."
+  ],
+  "reading":[
+    "Choose the book or reading material.",
+    "Choose a comfortable place to read.",
+    "Set a timer or page goal if needed.",
+    "Read until the goal is reached.",
+    "Bookmark your place and put the book away."
+  ],
+  "drawing":[
+    "Choose what you want to draw.",
+    "Get paper and drawing materials.",
+    "Set up your drawing space.",
+    "Start with one simple part of the drawing.",
+    "Pack the materials away when finished."
+  ],
+  "family time":[
+    "Find out what the family activity is.",
+    "Join the agreed space or activity.",
+    "Take part in the activity.",
+    "Tell someone if you need a short break.",
+    "Finish and check what comes next."
+  ],
+  "chores":[
+    "Check which chore you are doing.",
+    "Get the things you need for the chore.",
+    "Start with one small area or action.",
+    "Check that the chore is finished.",
+    "Put the equipment away."
+  ],
+  "hang clothes":[
+    "Take the wet clothes out of the washing machine or laundry basket.",
+    "Carry the clothes and pegs or hangers to the drying area.",
+    "Pick up one item at a time and straighten it out.",
+    "Hang each item on the clothesline or hanger and secure it if needed.",
+    "Put the empty basket and pegs or hangers back in their usual place."
+  ],
+  "fold clothes":[
+    "Bring the clean, dry clothes to a clear surface.",
+    "Sort the clothes into simple groups, such as tops, bottoms, socks and underwear.",
+    "Pick up one item, flatten it out and fold it.",
+    "Place the folded item into the correct pile or basket.",
+    "Put the folded clothes away in their usual drawers or cupboard."
+  ],
+  "outdoor play":[
+    "Choose what you want to do outside.",
+    "Put on suitable shoes and clothing.",
+    "Take any equipment you need.",
+    "Go to the agreed outdoor area and start the activity.",
+    "Come back when the timer or agreed time finishes."
+  ],
+  "sport / class":[
+    "Check the class time and when you need to leave.",
+    "Change into the clothes or uniform you need.",
+    "Pack your water bottle and any equipment you need.",
+    "Put on your shoes, take your bag and get ready to leave.",
+    "Travel to the class and check in or join the group."
+  ],
+  "appointment":[
+    "Check the appointment time and where you are going.",
+    "Get dressed and collect anything you need to bring.",
+    "Pack a drink or documents if needed.",
+    "Leave with enough travel time.",
+    "Arrive and check in or wait for your turn."
+  ],
+  "library":[
+    "Collect any books or items you need to return.",
+    "Get your library card or bag if needed.",
+    "Travel to the library.",
+    "Return books and choose what you want to borrow or do.",
+    "Check out your items and pack them safely."
+  ],
+  "shopping":[
+    "Check what you need to buy.",
+    "Get your bag, list or money if needed.",
+    "Travel to the shop.",
+    "Find the items on the list.",
+    "Pay, pack the items and return home."
+  ],
+  "take medication":[
+    "Go to the usual medication area or responsible adult.",
+    "Check that it is the correct scheduled medication time.",
+    "Take only the medication prepared or approved by the responsible adult or health professional.",
+    "Take it with water or as directed.",
+    "Confirm that the medication task is finished."
+  ],
+  "bedtime":[
+    "Put on your sleep clothes.",
+    "Brush your teeth and finish bathroom tasks.",
+    "Prepare your bed and bedroom.",
+    "Choose a short quiet activity if this is part of your routine.",
+    "Finish the activity and get into bed."
+  ],
+  "wash hands":[
+    "Turn on the water and wet your hands.",
+    "Add soap.",
+    "Rub all parts of your hands for about 20 seconds.",
+    "Rinse the soap off.",
+    "Dry your hands."
+  ]
+};
+
+function genericTaskBreakdown(taskLabel){
+  return [
+    `Look at the task: ${taskLabel}.`,
+    "Get the things you need.",
+    "Choose the first small action.",
+    "Do only that small action.",
+    "Check what the next small action is."
+  ];
+}
+
+function smartOfflineBreakdown(taskLabel){
+  const label=(taskLabel||"").trim();
+  const key=label.toLowerCase();
+  if(/karate|taekwondo|martial|sport class|soccer|football|basketball|tennis|dance class|swim|swimming|lesson|training/.test(key)){
+    return [
+      `Check the class time and when you need to leave for ${label}.`,
+      "Change into the clothes or uniform you need.",
+      "Pack your water bottle and any equipment you need.",
+      "Put on your shoes, take your bag, and get ready to leave.",
+      "Travel to the class and check in or join the group."
+    ];
+  }
+  if(/appointment|doctor|dentist|therapy|clinic/.test(key)){
+    return [
+      `Check the time and location for ${label}.`,
+      "Get dressed and collect anything you need to bring.",
+      "Pack a drink, documents, or other needed items.",
+      "Leave with enough travel time.",
+      "Arrive, check in, and wait for your turn."
+    ];
+  }
+  if(/go to|going to|leave for|travel to/.test(key)){
+    return [
+      `Check where you are going and what time you need to leave.`,
+      "Get dressed and ready.",
+      "Collect the things you need to take.",
+      "Put on your shoes and take your bag.",
+      "Leave and travel to the destination."
+    ];
+  }
+  return genericTaskBreakdown(label||"this task");
+}
+
+function getBreakdownForTask(task){
+  if(!task) return [];
+  const progress=taskBreakdownProgress();
+  if(progress[task.id] && Array.isArray(progress[task.id].steps) && progress[task.id].steps.length){
+    return progress[task.id].steps;
+  }
+  const key=(task.label||"").trim().toLowerCase();
+  return taskBreakdownLibrary[key] || smartOfflineBreakdown(task.label||"this task");
+}
+
+async function requestSmartBreakdown(task){
+  if(!task) return;
+  const status=document.getElementById("aiBreakdownStatus");
+  const key=(task.label||"").trim().toLowerCase();
+
+  if(taskBreakdownLibrary[key]){
+    taskBreakdownProgress()[task.id]={completed:[],steps:taskBreakdownLibrary[key],source:"Built-in"};
+    if(status) status.innerHTML="<strong>Built-in breakdown:</strong> this activity already has a prepared step-by-step routine.";
+    renderTaskBreakdown(task.id);
+    scheduleAutoSave();
+    return;
+  }
+
+  if(status) status.innerHTML='<span class="ai-loading">✨ Creating a simple step-by-step breakdown…</span>';
+
+  try{
+    const response=await fetch("/.netlify/functions/breakdown",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({task:task.label})
+    });
+    if(!response.ok) throw new Error("AI service unavailable");
+    const data=await response.json();
+    if(!Array.isArray(data.steps) || data.steps.length<3) throw new Error("Invalid AI response");
+    const steps=data.steps.slice(0,5).map(x=>String(x).trim()).filter(Boolean);
+    taskBreakdownProgress()[task.id]={completed:[],steps,source:"AI"};
+    if(status) status.innerHTML="<strong>✨ AI breakdown:</strong> generated for this custom activity. Review the steps with the child and change anything that does not fit.";
+  }catch(err){
+    const steps=smartOfflineBreakdown(task.label);
+    taskBreakdownProgress()[task.id]={completed:[],steps,source:"Offline"};
+    if(status) status.innerHTML="<strong>Offline breakdown:</strong> AI is not connected on this site, so the planner created a local 4–5 step version instead.";
+  }
+  renderTaskBreakdown(task.id);
+  scheduleAutoSave();
+}
+
+function taskBreakdownProgress(){
+  return currentTemplate().taskBreakdownProgress || {};
+}
+
+function selectedStuckTask(){
+  const select=document.getElementById("stuckTaskSelect");
+  if(!select || !select.value) return null;
+  return plan().find(t=>t.id===select.value) || null;
+}
+
+function currentRoutineTask(){
+  return plan().find(t=>t.status==="doing") || plan().find(t=>t.status!=="done") || plan()[0] || null;
+}
+
+function populateStuckTaskSelect(preferredId=null){
+  const select=document.getElementById("stuckTaskSelect");
+  if(!select) return;
+  const old=preferredId || select.value;
+  select.innerHTML="";
+  if(!plan().length){
+    const opt=document.createElement("option");
+    opt.value="";
+    opt.textContent="No routine tasks yet";
+    select.appendChild(opt);
+    return;
+  }
+  plan().forEach(t=>{
+    const opt=document.createElement("option");
+    opt.value=t.id;
+    opt.textContent=`${t.icon} ${t.label}`;
+    select.appendChild(opt);
+  });
+  const current=currentRoutineTask();
+  if(old && plan().some(t=>t.id===old)) select.value=old;
+  else if(current) select.value=current.id;
+}
+
+function renderTaskBreakdown(taskId=null){
+  populateStuckTaskSelect(taskId);
+  const task=taskId ? plan().find(t=>t.id===taskId) : selectedStuckTask();
+  const list=document.getElementById("breakdownSteps");
+  const action=document.getElementById("actionNowBox");
+  const copyFeedback=document.getElementById("copyFeedback");
+  if(copyFeedback) copyFeedback.textContent="";
+  if(!list || !action) return;
+
+  list.innerHTML="";
+  if(!task){
+    action.innerHTML='<small>DO THIS NOW</small><strong>Add a routine task first.</strong>';
+    return;
+  }
+
+  const steps=getBreakdownForTask(task);
+  const progress=taskBreakdownProgress();
+  if(!progress[task.id]) progress[task.id]={completed:[]};
+  const completed=progress[task.id].completed || [];
+
+  steps.forEach((step,idx)=>{
+    const row=document.createElement("label");
+    const isDone=completed.includes(idx);
+    row.className="breakdown-step"+(isDone?" done":"");
+    row.innerHTML=`<input type="checkbox" ${isDone?"checked":""}> <span><strong>${idx+1}.</strong> ${step}</span>`;
+    const cb=row.querySelector("input");
+    cb.onchange=()=>{
+      let done=(taskBreakdownProgress()[task.id]?.completed||[]).slice();
+      if(cb.checked && !done.includes(idx)) done.push(idx);
+      if(!cb.checked) done=done.filter(x=>x!==idx);
+      taskBreakdownProgress()[task.id]={completed:done};
+      renderTaskBreakdown(task.id);
+      scheduleAutoSave();
+    };
+    list.appendChild(row);
+  });
+
+  const firstIncomplete=steps.findIndex((_,idx)=>!completed.includes(idx));
+  if(firstIncomplete===-1){
+    action.innerHTML='<small>DONE</small><strong>✅ All small steps are complete.</strong>';
+  }else{
+    action.innerHTML=`<small>DO THIS NOW</small><strong>${steps[firstIncomplete]}</strong>`;
+  }
+}
+
+function resetTaskBreakdown(){
+  const task=selectedStuckTask();
+  if(!task) return;
+  taskBreakdownProgress()[task.id]={completed:[]};
+  renderTaskBreakdown(task.id);
+  scheduleAutoSave();
+}
+
+function completeNextSmallStep(){
+  const task=selectedStuckTask();
+  if(!task) return;
+  const steps=getBreakdownForTask(task);
+  let done=(taskBreakdownProgress()[task.id]?.completed||[]).slice();
+  const nextIndex=steps.findIndex((_,idx)=>!done.includes(idx));
+  if(nextIndex>=0) done.push(nextIndex);
+  taskBreakdownProgress()[task.id]={completed:done};
+  renderTaskBreakdown(task.id);
+  scheduleAutoSave();
+}
+
+async function copyTaskBreakdown(){
+  const task=selectedStuckTask();
+  const feedback=document.getElementById("copyFeedback");
+  if(!task){ if(feedback) feedback.textContent="Choose a task first."; return; }
+  const steps=getBreakdownForTask(task);
+  const text=`${task.label}\n`+steps.map((s,i)=>`${i+1}. ${s}`).join("\n");
+  try{
+    await navigator.clipboard.writeText(text);
+    if(feedback) feedback.textContent="✓ Steps copied.";
+  }catch{
+    const ta=document.createElement("textarea");
+    ta.value=text;
+    document.body.appendChild(ta);
+    ta.select();
+    try{document.execCommand("copy"); if(feedback) feedback.textContent="✓ Steps copied.";}
+    catch{if(feedback) feedback.textContent="Copy was blocked by this browser.";}
+    ta.remove();
+  }
+}
+
+function getStuckSuggestions(){
+  const p=plan();
+  const current=p.find(t=>t.status==="doing") || p.find(t=>t.status!=="done") || null;
+  const chosen=selectedTools();
+  const tips=[];
+
+  if(current) tips.push(`✅ My next step is: <strong>${current.label}</strong>.`);
+  if(chosen.includes("One step at a time")) tips.push("1️⃣ Do only the first small step, not the whole task.");
+  if(chosen.includes("5-minute start")) tips.push("🚀 Try it for just 5 minutes.");
+  if(chosen.includes("Visual timer")) tips.push("⏱️ Set a timer so the task has a clear ending.");
+  if(chosen.includes("Body doubling")) tips.push("👥 Ask someone to sit nearby while you start.");
+  if(chosen.includes("Ask-for-help cue")) tips.push("🙋 Say: “I’m stuck—what is my next step?”");
+  if(chosen.includes("First–Then")) tips.push(`🔁 First this task, then ${selectedMotivation()?selectedMotivation().name:"a preferred activity"}.`);
+  if(!tips.length){
+    tips.push("✅ Look at the next task.");
+    tips.push("1️⃣ Do one small step only.");
+    tips.push("🚀 Try it for 5 minutes.");
+    tips.push("🙋 Ask for help if still stuck.");
+  }
+  return tips;
+}
+
+function updateStuckBox(){
+  const box=document.getElementById("stuckBox");
+  const lines=getStuckSuggestions();
+  box.innerHTML='<strong>Helpful supports:</strong>'+lines.map(x=>`<div style="margin:4px 0">${x}</div>`).join("");
+}
+
+function getAudioCtx(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==="suspended") audioCtx.resume();
+  return audioCtx;
+}
+function stopSound(){
+  activeOscillators.forEach(o=>{try{o.stop()}catch{}});
+  activeOscillators=[];
+}
+function tone(freq,start,duration,gainValue,type="sine"){
+  const ctx=getAudioCtx();
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001,ctx.currentTime+start);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.001,gainValue),ctx.currentTime+start+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+start+duration);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(ctx.currentTime+start); o.stop(ctx.currentTime+start+duration+0.03);
+  activeOscillators.push(o);
+  o.onended=()=>{activeOscillators=activeOscillators.filter(x=>x!==o)};
+}
+function playAlarmSound(){
+  stopSound();
+  const v=Math.max(0.01,state.alarmVolume);
+  if(state.soundChoice==="chime"){
+    tone(660,0,.30,v*.55,"sine"); tone(880,.22,.42,v*.55,"sine"); tone(1100,.48,.55,v*.45,"sine");
+  }else if(state.soundChoice==="bell"){
+    tone(880,0,.65,v*.70,"triangle"); tone(1320,.03,.55,v*.32,"sine"); tone(660,.08,.75,v*.25,"sine");
+  }else if(state.soundChoice==="double"){
+    tone(820,0,.28,v*.75,"square"); tone(820,.42,.28,v*.75,"square");
+  }else if(state.soundChoice==="urgent"){
+    for(let i=0;i<6;i++) tone(i%2===0?880:660,i*.30,.22,v*.90,"square");
+  }
+}
+function notify(title,body,key){
+  if(fired[key]) return;
+  fired[key]=true;
+  playAlarmSound();
+  if("Notification" in window && Notification.permission==="granted"){
+    try{new Notification(title,{body})}catch{}
+  }
+  alert(title+"\n\n"+body);
+}
+function timeForToday(hhmm){
+  if(!hhmm) return null;
+  const [h,m]=hhmm.split(":").map(Number), d=new Date();
+  d.setHours(h,m,0,0); return d;
+}
+function alarmTick(){
+  if(!state.alarmsEnabled) return;
+  const now=Date.now(), today=new Date().toDateString();
+  plan().forEach(t=>{
+    if(t.status==="done") return;
+    if(t.start){
+      const st=timeForToday(t.start); const diff=st-now; const warn=Number(t.warning||0)*60000;
+      if(warn>0 && diff<=warn && diff>warn-20000){
+        notify("Upcoming: "+t.label,`${t.warning} minutes until ${t.label}.`,today+"-"+t.id+"-warn-"+t.warning);
+      }
+      if(diff<=0 && diff>-20000){
+        notify("Time to start: "+t.label,`Planned start time is ${t.start}.`,today+"-"+t.id+"-start");
+      }
+    }
+  });
+}
+setInterval(alarmTick,10000);
+
+function getState(){ return JSON.parse(JSON.stringify(state)); }
+
+function saveState(silent=true){
+  try{
+    localStorage.setItem(APP_KEY, JSON.stringify(getState()));
+    document.getElementById("saveStatus").textContent="Auto-saved on this device at "+new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})+".";
+    if(!silent){
+      const b=document.getElementById("saveBtn"), old=b.textContent;
+      b.textContent="✓ Saved";
+      setTimeout(()=>b.textContent=old,1100);
+    }
+  }catch(e){
+    document.getElementById("saveStatus").textContent="This browser did not allow local saving. Use Export backup instead.";
+  }
+}
+function scheduleAutoSave(){
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer=setTimeout(()=>saveState(true),250);
+}
+
+
+function cleanProfileName(name){
+  return String(name||"").trim().replace(/\s+/g," ").slice(0,40);
+}
+function readProfileList(){
+  try{
+    const x=JSON.parse(localStorage.getItem(PROFILE_LIST_KEY)||"[]");
+    return Array.isArray(x)?x:[];
+  }catch{return []}
+}
+function writeProfileList(list){
+  localStorage.setItem(PROFILE_LIST_KEY,JSON.stringify(list));
+}
+function updateProfileUI(){
+  const name=cleanProfileName(ACTIVE_PROFILE?.name)||"My";
+  const h=document.getElementById("plannerNameTitle");
+  if(h) h.textContent=name;
+  document.title=`${name} – After-School Mission`;
+}
+
+function loadState(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(APP_KEY)||"null");
+    if(saved && Array.isArray(saved.templates) && saved.templates.length){
+      state=saved;
+      state.version=8;
+      state.templates.forEach(ensureTemplateShape);
+      return;
+    }
+    const v8=LEGACY_V8 ? JSON.parse(localStorage.getItem(LEGACY_V8)||"null") : null;
+    if(v8 && Array.isArray(v8.templates) && v8.templates.length){
+      state=v8;
+      state.version=9;
+      if(!Array.isArray(state.customActivities)) state.customActivities=[];
+      state.templates.forEach(ensureTemplateShape);
+      localStorage.setItem(APP_KEY,JSON.stringify(state));
+      return;
+    }
+
+    const v7=LEGACY_V7 ? JSON.parse(localStorage.getItem(LEGACY_V7)||"null") : null;
+    if(v7 && Array.isArray(v7.templates) && v7.templates.length){
+      state=v7;
+      state.version=8;
+      if(!Array.isArray(state.customActivities)) state.customActivities=[];
+      state.templates.forEach(ensureTemplateShape);
+      return;
+    }
+    const v6=LEGACY_V6 ? JSON.parse(localStorage.getItem(LEGACY_V6)||"null") : null;
+    if(v6 && Array.isArray(v6.templates) && v6.templates.length){
+      state=v6;
+      state.version=8;
+      state.templates.forEach(ensureTemplateShape);
+      return;
+    }
+    const v5=LEGACY_V5 ? JSON.parse(localStorage.getItem(LEGACY_V5)||"null") : null;
+    if(v5 && Array.isArray(v5.templates) && v5.templates.length){
+      state=v5;
+      state.version=8;
+      state.templates.forEach(ensureTemplateShape);
+      return;
+    }
+    const legacy=LEGACY_V4 ? JSON.parse(localStorage.getItem(LEGACY_V4)||"null") : null;
+    if(legacy && Array.isArray(legacy.plan)){
+      state.templates=[{id:"default",name:"Weekday",plan:legacy.plan,selectedToolNames:Array.isArray(legacy.selectedToolNames)?legacy.selectedToolNames:[],reward:"",motivationItems:[],selectedMotivationId:null,unlockTaskIds:[],taskBreakdownProgress:{}}];
+      state.currentTemplateId="default";
+      state.soundChoice=legacy.soundChoice||"chime";
+      state.alarmVolume=typeof legacy.alarmVolume==="number"?legacy.alarmVolume:0.70;
+    }
+  }catch{}
+}
+
+function refreshAll(){
+  renderTemplateBar();
+  renderTools();
+  renderSelectedTools();
+  renderMotivationBank();
+  const m=selectedMotivation();
+  if(!motivationRunning && !motivationPaused) motivationRemainingSeconds=m?m.duration*60:0;
+  renderPlan();
+  renderUnlockTaskList();
+  updateMotivationTimerDisplay();
+  document.getElementById("soundChoice").value=state.soundChoice;
+  document.getElementById("volumeSlider").value=Math.round(state.alarmVolume*100);
+  document.getElementById("volumeLabel").textContent=Math.round(state.alarmVolume*100)+"%";
+  document.getElementById("alarmStatus").textContent=state.alarmsEnabled ? "In-page alarms are ON." : "Alarms are off. Click “Enable alarms” above.";
+}
+
+document.getElementById("templateSelect").onchange=e=>{
+  state.currentTemplateId=e.target.value;
+  fired={};
+  refreshAll();
+  scheduleAutoSave();
+};
+document.getElementById("newTemplateBtn").onclick=()=>{
+  const name=prompt("Name the new routine template:", "Weekend");
+  if(!name) return;
+  const id=uid();
+  state.templates.push({id,name,plan:[],selectedToolNames:[],reward:"",motivationItems:[],selectedMotivationId:null,unlockTaskIds:[],taskBreakdownProgress:{}});
+  state.currentTemplateId=id;
+  refreshAll();
+  scheduleAutoSave();
+};
+document.getElementById("renameTemplateBtn").onclick=()=>{
+  const t=currentTemplate();
+  const name=prompt("Rename this routine template:", t.name);
+  if(!name) return;
+  t.name=name;
+  renderTemplateBar();
+  scheduleAutoSave();
+};
+document.getElementById("deleteTemplateBtn").onclick=()=>{
+  if(state.templates.length===1){
+    alert("At least one template needs to stay in the planner.");
+    return;
+  }
+  if(!confirm("Delete this routine template?")) return;
+  state.templates=state.templates.filter(t=>t.id!==state.currentTemplateId);
+  state.currentTemplateId=state.templates[0].id;
+  refreshAll();
+  scheduleAutoSave();
+};
+
+const sequence=document.getElementById("sequence");
+sequence.addEventListener("dragover",e=>e.preventDefault());
+sequence.addEventListener("drop",e=>{
+  e.preventDefault();
+  if(e.target.closest(".seq-item")) return;
+  const seqIndex=e.dataTransfer.getData("text/seq-index");
+  if(seqIndex!==""){
+    const p=plan(); const [moved]=p.splice(Number(seqIndex),1); p.push(moved);
+  }else{
+    try{
+      const d=JSON.parse(e.dataTransfer.getData("text/plain"));
+      plan().push(newTask(d.icon,d.label));
+    }catch{}
+  }
+  renderPlan();
+});
+
+document.getElementById("addCustom").onclick=()=>{
+  const input=document.getElementById("customText");
+  const val=input.value.trim();
+  if(!val) return;
+  if(!Array.isArray(state.customActivities)) state.customActivities=[];
+  const exists=state.customActivities.some(x=>(x.label||"").trim().toLowerCase()===val.toLowerCase())
+    || activities.some(x=>String(x[1]).trim().toLowerCase()===val.toLowerCase());
+  if(!exists) state.customActivities.push({id:uid(),icon:"⭐",label:val});
+  input.value="";
+  renderBank();
+  scheduleAutoSave();
+};
+document.getElementById("customText").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("addCustom").click(); });
+
+document.getElementById("addMotivationBtn").onclick=()=>{
+  const name=document.getElementById("motivationNameInput").value.trim();
+  const duration=Math.max(1,Number(document.getElementById("motivationDurationInput").value)||20);
+  if(!name) return;
+  const item={id:uid(),name,duration,icon:"⭐"};
+  currentTemplate().motivationItems.push(item);
+  setSelectedMotivationId(item.id);
+  motivationRemainingSeconds=duration*60;
+  document.getElementById("motivationNameInput").value="";
+  renderMotivationBank(); renderUnlockTaskList(); updateFirstThen(); updateMotivationTimerDisplay(); scheduleAutoSave();
+};
+document.getElementById("motivationNameInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter") document.getElementById("addMotivationBtn").click();
+});
+document.getElementById("motivationStartBtn").onclick=()=>startMotivationTimer();
+document.getElementById("motivationPauseBtn").onclick=()=>pauseMotivationTimer();
+document.getElementById("motivationResumeBtn").onclick=()=>resumeMotivationTimer();
+document.getElementById("motivationStopBtn").onclick=()=>stopMotivationTimer(true);
+
+document.getElementById("stuckTaskSelect").onchange=e=>renderTaskBreakdown(e.target.value);
+document.getElementById("useCurrentTaskBtn").onclick=()=>{
+  const t=currentRoutineTask();
+  if(!t) return;
+  document.getElementById("stuckTaskSelect").value=t.id;
+  renderTaskBreakdown(t.id);
+};
+document.getElementById("breakTaskBtn").onclick=async()=>{
+  const task=selectedStuckTask();
+  if(!task) return;
+  await requestSmartBreakdown(task);
+};
+document.getElementById("nextSmallStepBtn").onclick=()=>completeNextSmallStep();
+document.getElementById("copyBreakdownBtn").onclick=()=>copyTaskBreakdown();
+document.getElementById("resetBreakdownBtn").onclick=()=>resetTaskBreakdown();
+
+document.getElementById("enableAlarmBtn").onclick=async()=>{
+  state.alarmsEnabled=true;
+  playAlarmSound();
+  let note="In-page alarms are ON.";
+  if("Notification" in window){
+    try{
+      const p=Notification.permission==="default" ? await Notification.requestPermission() : Notification.permission;
+      note += p==="granted" ? " Browser notifications are also allowed." : " Browser notifications are not available, but in-page alarms will still work.";
+    }catch{
+      note += " Browser notifications may not work from a local file, but in-page alarms will still work.";
+    }
+  }
+  document.getElementById("alarmStatus").textContent=note;
+  scheduleAutoSave();
+};
+
+document.getElementById("soundChoice").onchange=e=>{ state.soundChoice=e.target.value; scheduleAutoSave(); };
+document.getElementById("volumeSlider").oninput=e=>{
+  state.alarmVolume=Number(e.target.value)/100;
+  document.getElementById("volumeLabel").textContent=e.target.value+"%";
+  scheduleAutoSave();
+};
+document.getElementById("testSoundBtn").onclick=()=>playAlarmSound();
+document.getElementById("stopSoundBtn").onclick=()=>stopSound();
+
+document.getElementById("sampleBtn").onclick=()=>{
+  const p=[
+    newTask("🏠","Arrive home"), newTask("🎒","Put school bag away"), newTask("🍎","Snack"),
+    newTask("🛋️","Short break"), newTask("📒","Check homework"), newTask("✏️","Start homework"),
+    newTask("🤸","Movement break"), newTask("🎮","Free time"), newTask("🍽️","Dinner"), newTask("🎒","Pack school bag")
+  ];
+  ["15:45","15:50","15:55","16:10","16:25","16:30","17:00","17:10","18:30","19:15"].forEach((x,i)=>p[i].start=x);
+  [5,5,15,15,5,25,10,30,30,10].forEach((x,i)=>p[i].duration=x);
+  currentTemplate().plan=p;
+  currentTemplate().selectedToolNames=["Checklist","Visual timer","5-minute warning"];
+  currentTemplate().reward="";
+  const mot={id:uid(),name:"Minecraft",duration:20,icon:"🎮"};
+  currentTemplate().motivationItems=[mot];
+  currentTemplate().selectedMotivationId=mot.id;
+  currentTemplate().unlockTaskIds=[p[4].id,p[5].id];
+  motivationRemainingSeconds=20*60;
+  refreshAll();
+  scheduleAutoSave();
+};
+
+document.getElementById("clearBtn").onclick=()=>{
+  if(!confirm("Clear the current routine and selected tools in this template?")) return;
+  currentTemplate().plan=[];
+  currentTemplate().selectedToolNames=[];
+  currentTemplate().reward="";
+  currentTemplate().motivationItems=[];
+  currentTemplate().selectedMotivationId=null;
+  currentTemplate().unlockTaskIds=[];
+  currentTemplate().taskBreakdownProgress={};
+  stopMotivationTimer(false);
+  motivationRemainingSeconds=0;
+  fired={};
+  refreshAll();
+  scheduleAutoSave();
+};
+
+document.getElementById("saveBtn").onclick=()=>saveState(false);
+document.getElementById("printBtn").onclick=()=>window.print();
+
+document.getElementById("exportBtn").onclick=()=>{
+  const blob=new Blob([JSON.stringify(getState(),null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`${cleanProfileName(ACTIVE_PROFILE?.name).replace(/[^a-z0-9_-]+/gi,"_") || "Routine"}_After_School_Mission_v18_Backup.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+document.getElementById("importBtn").onclick=()=>document.getElementById("importFile").click();
+document.getElementById("importFile").onchange=e=>{
+  const file=e.target.files && e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!Array.isArray(data.templates) || !data.templates.length) throw new Error("bad file");
+      state=data;
+      if(!Array.isArray(state.customActivities)) state.customActivities=[];
+      fired={};
+      refreshAll();
+      saveState(true);
+      alert("Backup imported successfully.");
+    }catch{
+      alert("That backup file could not be read.");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value="";
+};
+
+updateProfileUI();
+
+loadState();
+renderBank();
+refreshAll();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(err => {
+      console.warn("Service worker registration failed:", err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>

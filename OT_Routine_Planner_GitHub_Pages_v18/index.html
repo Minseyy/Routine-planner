@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#302865">
+<title>My After-School Mission</title>
+<style>
+:root{--ink:#302865;--muted:#726d89;--line:#e3deef}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;display:grid;place-items:center;
+  font-family:ui-rounded,"SF Pro Rounded","Segoe UI",Arial,sans-serif;
+  background:linear-gradient(180deg,#faf8ff,#fff);color:var(--ink)
+}
+.wrap{width:min(650px,100%);padding:20px}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:25px;padding:24px;
+  box-shadow:0 10px 28px rgba(55,43,92,.10)
+}
+.star{font-size:45px}
+h1{font-size:34px;margin:7px 0 8px}
+p{color:var(--muted);line-height:1.5;margin:0 0 18px}
+label{display:block;font-size:13px;font-weight:900;margin-bottom:7px}
+.input-row{display:flex;gap:8px}
+input{
+  flex:1;min-width:0;min-height:49px;border:1px solid #d9d3e7;border-radius:14px;
+  padding:11px 13px;font:inherit;font-size:18px;color:var(--ink)
+}
+button{
+  min-height:49px;border:1px solid #302865;border-radius:14px;padding:11px 16px;
+  font:inherit;font-weight:900;background:#302865;color:white;cursor:pointer
+}
+.note{
+  margin-top:17px;padding:11px 12px;border-radius:13px;background:#fff9df;border:1px solid #eadc9e;
+  color:#675b31;font-size:13px;line-height:1.45
+}
+@media(max-width:560px){
+  .card{padding:18px;border-radius:20px}
+  h1{font-size:29px}
+  .input-row{flex-direction:column}
+  .input-row button{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="star">🌟</div>
+    <h1>My After-School Mission</h1>
+    <p>Enter your name once. This device will remember it and open your planner automatically next time.</p>
+
+    <label for="nameInput">What should I call you?</label>
+    <div class="input-row">
+      <input id="nameInput" maxlength="40" autocomplete="name" placeholder="e.g. Alex">
+      <button id="startBtn">Start my planner</button>
+    </div>
+
+    <div class="note">
+      Your name and planner entries are saved in this browser on this device. If browser/site data is cleared, the saved information can be lost.
+    </div>
+  </div>
+</div>
+
+<script>
+const PROFILE_KEY="otRoutinePlannerActiveProfileV9";
+const PROFILE_LIST_KEY="otRoutinePlannerProfilesV9";
+
+function cleanName(name){
+  return String(name||"").trim().replace(/\s+/g," ").slice(0,40);
+}
+function uid(){
+  return crypto.randomUUID ? crypto.randomUUID() : "p-"+Date.now()+"-"+Math.random().toString(16).slice(2);
+}
+function start(){
+  const box=document.getElementById("nameInput");
+  const name=cleanName(box.value);
+  if(!name){ box.focus(); return; }
+
+  // Reuse a matching existing profile if this site previously used v9.
+  let existing=null;
+  try{
+    const list=JSON.parse(localStorage.getItem(PROFILE_LIST_KEY)||"[]");
+    if(Array.isArray(list)){
+      existing=list.find(p=>cleanName(p?.name).toLowerCase()===name.toLowerCase())||null;
+    }
+  }catch{}
+
+  const profile=existing || {id:uid(),name,createdAt:Date.now()};
+  localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));
+
+  // Keep a tiny profile record only for backward compatibility/data migration.
+  try{
+    let list=JSON.parse(localStorage.getItem(PROFILE_LIST_KEY)||"[]");
+    if(!Array.isArray(list)) list=[];
+    if(!list.some(p=>p.id===profile.id)) list.push(profile);
+    localStorage.setItem(PROFILE_LIST_KEY,JSON.stringify(list));
+  }catch{}
+
+  window.location.href="./planner.html";
+}
+
+document.getElementById("startBtn").onclick=start;
+document.getElementById("nameInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter") start();
+});
+
+// Returning visitor: skip this page entirely.
+try{
+  const active=JSON.parse(localStorage.getItem(PROFILE_KEY)||"null");
+  if(active?.id && active?.name) window.location.replace("./planner.html");
+}catch{}
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(err => {
+      console.warn("Service worker registration failed:", err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
